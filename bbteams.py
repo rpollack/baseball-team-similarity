@@ -70,7 +70,7 @@ def getTeamInfo(years, teamName, runsScored, runsAllowed, SO, HR, BB, SOA, BBA, 
 
 def needToCompare(year1, team1, year2, team2, comparedTeams):
     '''
-    Given teams A and B, returns True if we have already compared team B to team A.
+    Given teams A and B, returns True if we have already compared team B to team A or if Team A == Team B.
     '''
     doCompare = True # by default assume we need to compare the teams
     if (year1 == year2) and (team1 == team2): # prevent comparing a team against itself
