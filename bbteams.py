@@ -65,21 +65,29 @@ def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, 
     hrA = HRA[index]
     return year, team, runsScored, runsAllowed, strikeouts, hrHit, walks, strikeoutsA, walksA, hrA
 
-def needToCompare(year1, team1, year2, team2, comparedTeams):
+def needToCompare(yearA, teamA, yearB, teamB, comparedTeams):
     '''
     Given teams A and B, returns True if we have already compared team B to team A or if Team A == Team B.
     '''
     doCompare = True # by default assume we need to compare the teams
-    if (year1 == year2) and (team1 == team2): # prevent comparing a team against itself
+    seasonA = str(yearA) + teamA 
+    seasonB = str(yearB) + teamB
+    
+    if seasonA == seasonB: # prevent comparing a team-year against itself
         doCompare = False
     else:
         # teams are unique, but see if we've already compared them
         for c in comparedTeams:
-            if (year1 == c[0] and team1 == c[1]) or (year1 == c[2] and team1 == c[3]):
-                # team1 was found in the list.
-                if (year2 == c[0] and team2 == c[1]) or (year2 == c[2] and team2 == c[3]):
-                    #team 2 was also found in the list. We've already made this comparison.
-                    doCompare = False
+            if seasonA == c[0]:
+                if seasonB == c[1]:
+                     doCompare = False
+            elif seasonA == c[1]:
+                if seasonB == c[0]:
+                     doCompare = False
+    if doCompare:
+        print "Comparing %s and %s." % (seasonA, seasonB)
+    else:
+        print "Skipping unnecessary comparison."
     return doCompare        
 
 def calcSimilarity(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2):
@@ -119,7 +127,7 @@ for i in range (0, numSeasons):
             writer.writerow(similarityData)
             
             # store year1/team1 and year2/team2 in a list of already-compared teams
-            justCompared = [year1, team1, year2, team2]
+            justCompared = [str(year1) + team1, str(year2) + team2]
             comparedTeams.append(justCompared)
 print "Complete."
 f.close()
