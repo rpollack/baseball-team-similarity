@@ -44,10 +44,7 @@ HRA = df.HRA # home runs allowed by pitchers
 numSeasons = len(years)
 numCompares = numSeasons * (numSeasons -1) #the total number of comparisons we do, comparing each team against every other team but itself
 
-comparedTeams = [] # the list that holds team comparisons to prevent duplicate comparisons
-noCompares = 0 # count the number of comparisons we DON'T make for whatever reason
-compares = 0# count the number of comparisons we DO make
-
+comparedTeams = [] # initialize the list that holds team comparisons to prevent duplicate comparisons
 
 def getTeamInfo(years, teamName, runsScored, runsAllowed, SO, HR, BB, SOA, BBA, HRA, index):
     '''
@@ -79,11 +76,9 @@ def needToCompare(year1, team1, year2, team2, comparedTeams):
         # teams are unique, but see if we've already compared them
         for c in comparedTeams:
             if (year1 == c[0] and team1 == c[1]) or (year1 == c[2] and team1 == c[3]):
-                # print "%s %s was found." % (year1, team1)
                 # team1 was found in the list.
                 if (year2 == c[0] and team2 == c[1]) or (year2 == c[2] and team2 == c[3]):
                     #team 2 was also found in the list. We've already made this comparison.
-                    # don't need to compare
                     doCompare = False
     return doCompare        
 
@@ -111,31 +106,22 @@ writer = csv.writer(f)
 writer.writerow(header)
 
 for i in range (0, numSeasons):    
-    # get the data for the first team
     year1, team1, runsScored1, runsAllowed1, strikeouts1, hrHit1, walks1, strikeoutsAllowed1, walksAllowed1, hrAllowed1 = getTeamInfo(years, teamName, runsScored, runsAllowed, SO, HR, BB, SOA, BBA, HRA, i)
-
     for j in range (0, numSeasons):
         #get the info to find out whether we need to compare the teams
         team2 = teamName[j]
         year2 = years[j]
-        
         if needToCompare(year1, team1, year2, team2, comparedTeams):
-                # get rest of data for Team 2
+            # get all data for Team 2
             year2, team2, runsScored2, runsAllowed2, strikeouts2, hrHit2, walks2, strikeoutsAllowed2, walksAllowed2, hrAllowed2 = getTeamInfo(years, teamName, runsScored, runsAllowed, SO, HR, BB, SOA, BBA, HRA, j)
-
-            similarityScore = calcSimilarity(runsScored1, runsScored2, runsAllowed1, runsAllowed2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsAllowed1, strikeoutsAllowed2, walksAllowed1, walksAllowed2, hrAllowed1, hrAllowed2)
-                
+            similarityScore = calcSimilarity(runsScored1, runsScored2, runsAllowed1, runsAllowed2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsAllowed1, strikeoutsAllowed2, walksAllowed1, walksAllowed2, hrAllowed1, hrAllowed2)  
             similarityData = [year1, team1, year2, team2, runsScored1, runsScored2, runsAllowed1, runsAllowed2, walks1, walks2, strikeouts1, strikeouts2, hrHit1, hrHit2, walksAllowed1, walksAllowed2, strikeoutsAllowed1, strikeoutsAllowed2, hrAllowed1, hrAllowed2, similarityScore]
             writer.writerow(similarityData)
             
-            #store year1/team1 and year2/team2 in a list of already-compared teams
+            # store year1/team1 and year2/team2 in a list of already-compared teams
             justCompared = [year1, team1, year2, team2]
             comparedTeams.append(justCompared)
-            compares += 1
-        else:
-            noCompares += 1
-
-print "\nComplete. %s comparisons and % skipped." % (compares, noCompares)
+print "Complete." % (compares, noCompares)
 f.close()
             
 #account for different-length seasons & convert to 162-game seasons (linear regression?)
