@@ -121,7 +121,7 @@ for i in range (0, numSeasons):
             # store year1/team1 and year2/team2 in a list of already-compared teams
             justCompared = [year1, team1, year2, team2]
             comparedTeams.append(justCompared)
-print "Complete." % (compares, noCompares)
+print "Complete."
 f.close()
             
 #account for different-length seasons & convert to 162-game seasons (linear regression?)
