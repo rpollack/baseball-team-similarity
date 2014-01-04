@@ -27,11 +27,11 @@ df = pd.read_csv('lahman/Teams.csv')
 
 #Get teams' info
 years = df.yearID
-teamName = df.name
+teamNames = df.name
 gamesPlayed = df.G # for normalizing all stats to 162-game season 
 #Get pythagorean stats
 runsScored = df.R
-runsAllowed = df.RA
+runsA = df.RA
 #Get FIP stats for offense
 BB = df.BB # walks by offense
 SO = df.SO # strikeouts by offense
@@ -46,24 +46,24 @@ numCompares = numSeasons * (numSeasons -1) #the total number of comparisons we d
 
 comparedTeams = [] # initialize the list that holds team comparisons to prevent duplicate comparisons
 
-def getTeamInfo(years, teamName, runsScored, runsAllowed, SO, HR, BB, SOA, BBA, HRA, index):
+def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, index):
     '''
     Returns team information contained in the arrays that represent the database.
     '''
     year = years[index]
-    team = teamName[index]
+    team = teamNames[index]
     runsScored = runsScored[index] # converts partial seasons to 162-game ones
-    runsAllowed = runsAllowed[index]
+    runsAllowed = runsA[index]
     if math.isnan(SO[index]): #lahman's DB doesn't have SO numbers for many years. if we don't set them to 0, they'll come up as NaN which will screw up the calculations.
         strikeouts = 0
     else:
         strikeouts = int(SO[index]) # for some reason, SOs are being read as floats. force them to ints here.
     hrHit = HR[index]
     walks = BB[index]
-    strikeoutsAllowed = SOA[index]
-    walksAllowed = BBA[index]
-    hrAllowed = HRA[index]
-    return year, team, runsScored, runsAllowed, strikeouts, hrHit, walks, strikeoutsAllowed, walksAllowed, hrAllowed
+    strikeoutsA = SOA[index]
+    walksA = BBA[index]
+    hrA = HRA[index]
+    return year, team, runsScored, runsAllowed, strikeouts, hrHit, walks, strikeoutsA, walksA, hrA
 
 def needToCompare(year1, team1, year2, team2, comparedTeams):
     '''
@@ -82,19 +82,19 @@ def needToCompare(year1, team1, year2, team2, comparedTeams):
                     doCompare = False
     return doCompare        
 
-def calcSimilarity(runsScored1, runsScored2, runsAllowed1, runsAllowed2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsAllowed1, strikeoutsAllowed2, walksAllowed1, walksAllowed2, hrAllowed1, hrAllowed2):
+def calcSimilarity(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2):
     startingScore = 1000
     runsScoredDivisor = 10 # the differential in runs scored that causes a one-point drop in similarity score between two teams
-    runsAllowedDivisor = 10
+    runsADivisor = 10
     pointsOffRunsScored = int(abs(runsScored1 - runsScored2)/runsScoredDivisor)
-    pointsOffRunsAllowed = int(abs(runsAllowed1 - runsAllowed2)/runsAllowedDivisor)
+    pointsOffRunsA = int(abs(runsA1 - runsA2)/runsADivisor)
     pointsOffSO = abs(strikeouts1-strikeouts2)
     pointsOffHR = abs(hrHit1-hrHit2)
     pointsOffBB = abs(walks1-walks2)
-    pointsOffSOAllowed = abs(strikeoutsAllowed1 - strikeoutsAllowed2)
-    pointsOffBBAllowed = abs(walksAllowed1 - walksAllowed2)
-    pointsOffHRAllowed = abs(hrAllowed1 - hrAllowed2) 
-    totalPointsOff = pointsOffRunsScored + pointsOffRunsAllowed + pointsOffSO + pointsOffHR + pointsOffBB + pointsOffSOAllowed + pointsOffBBAllowed + pointsOffHRAllowed
+    pointsOffSOA = abs(strikeoutsA1 - strikeoutsA2)
+    pointsOffBBA = abs(walksA1 - walksA2)
+    pointsOffHRA = abs(hrA1 - hrA2) 
+    totalPointsOff = pointsOffRunsScored + pointsOffRunsA + pointsOffSO + pointsOffHR + pointsOffBB + pointsOffSOA + pointsOffBBA + pointsOffHRA
     similarityScore = startingScore - totalPointsOff
     return similarityScore
 
@@ -106,16 +106,16 @@ writer = csv.writer(f)
 writer.writerow(header)
 
 for i in range (0, numSeasons):    
-    year1, team1, runsScored1, runsAllowed1, strikeouts1, hrHit1, walks1, strikeoutsAllowed1, walksAllowed1, hrAllowed1 = getTeamInfo(years, teamName, runsScored, runsAllowed, SO, HR, BB, SOA, BBA, HRA, i)
+    year1, team1, runsScored1, runsA1, strikeouts1, hrHit1, walks1, strikeoutsA1, walksA1, hrA1 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, i)
     for j in range (0, numSeasons):
         #get the info to find out whether we need to compare the teams
-        team2 = teamName[j]
+        team2 = teamNames[j]
         year2 = years[j]
         if needToCompare(year1, team1, year2, team2, comparedTeams):
             # get all data for Team 2
-            year2, team2, runsScored2, runsAllowed2, strikeouts2, hrHit2, walks2, strikeoutsAllowed2, walksAllowed2, hrAllowed2 = getTeamInfo(years, teamName, runsScored, runsAllowed, SO, HR, BB, SOA, BBA, HRA, j)
-            similarityScore = calcSimilarity(runsScored1, runsScored2, runsAllowed1, runsAllowed2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsAllowed1, strikeoutsAllowed2, walksAllowed1, walksAllowed2, hrAllowed1, hrAllowed2)  
-            similarityData = [year1, team1, year2, team2, runsScored1, runsScored2, runsAllowed1, runsAllowed2, walks1, walks2, strikeouts1, strikeouts2, hrHit1, hrHit2, walksAllowed1, walksAllowed2, strikeoutsAllowed1, strikeoutsAllowed2, hrAllowed1, hrAllowed2, similarityScore]
+            year2, team2, runsScored2, runsA2, strikeouts2, hrHit2, walks2, strikeoutsA2, walksA2, hrA2 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, j)
+            similarityScore = calcSimilarity(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2)  
+            similarityData = [year1, team1, year2, team2, runsScored1, runsScored2, runsA1, runsA2, walks1, walks2, strikeouts1, strikeouts2, hrHit1, hrHit2, walksA1, walksA2, strikeoutsA1, strikeoutsA2, hrA1, hrA2, similarityScore]
             writer.writerow(similarityData)
             
             # store year1/team1 and year2/team2 in a list of already-compared teams
