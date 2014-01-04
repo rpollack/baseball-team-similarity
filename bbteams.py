@@ -84,11 +84,14 @@ def needToCompare(yearA, teamA, yearB, teamB, comparedTeams):
             elif seasonA == c[1]:
                 if seasonB == c[0]:
                      doCompare = False
+    return doCompare
+'''
     if doCompare:
         print "Comparing %s and %s." % (seasonA, seasonB)
     else:
         print "Skipping unnecessary comparison."
-    return doCompare        
+'''
+       
 
 def calcSimilarity(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2):
     startingScore = 1000
@@ -109,7 +112,10 @@ def calcSimilarity(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strike
 #open file that will contain the results
 resultFile = "similarityscores.csv"
 f = open(resultFile,'w')
-header = ["year1", "team1", "year2", "team2", "R1", "R2", "RA1", "RA2", "BB1", "BB2", "SO1", "SO2", "HR1", "HR2", "BBA1", "BBA2", "SOA1", "SOA2", "HRA1", "HRA2", "simscore"]
+#header = ["year1", "team1", "year2", "team2", "R1", "R2", "RA1", "RA2", "BB1", "BB2", "SO1", "SO2", "HR1", "HR2", "BBA1", "BBA2", "SOA1", "SOA2", "HRA1", "HRA2", "simscore"]
+
+header = ["year1", "team1", "year2", "team2", "simscore"]
+
 writer = csv.writer(f)
 writer.writerow(header)
 
@@ -123,7 +129,10 @@ for i in range (0, numSeasons):
             # get all data for Team 2
             year2, team2, runsScored2, runsA2, strikeouts2, hrHit2, walks2, strikeoutsA2, walksA2, hrA2 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, j)
             similarityScore = calcSimilarity(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2)  
-            similarityData = [year1, team1, year2, team2, runsScored1, runsScored2, runsA1, runsA2, walks1, walks2, strikeouts1, strikeouts2, hrHit1, hrHit2, walksA1, walksA2, strikeoutsA1, strikeoutsA2, hrA1, hrA2, similarityScore]
+            
+            similarityData = [year1, team1, year2, team2, similarityScore]
+            
+            #similarityData = [year1, team1, year2, team2, runsScored1, runsScored2, runsA1, runsA2, walks1, walks2, strikeouts1, strikeouts2, hrHit1, hrHit2, walksA1, walksA2, strikeoutsA1, strikeoutsA2, hrA1, hrA2, similarityScore]
             writer.writerow(similarityData)
             
             # store year1/team1 and year2/team2 in a list of already-compared teams
