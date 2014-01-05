@@ -68,6 +68,24 @@ def readDatabase(datafile):
     except Exception as e:
         exit("Error reading from %s: %s" % (dataFile, e))
 
+def createOutputFiles(years, teamNames, numSeasons):
+    '''
+    Creates the .csv files that will hold the results of comparing each team to the rest.
+    '''
+    for i in range (0, numSeasons):
+        year = years[i]
+        teamName = teamNames[i]
+        teamName.replace('/', '-')
+        teamSeasonFile = str(year) + " " + teamName + '.csv'
+        resultFile = os.path.join(dir, teamSeasonFile)
+        try:
+            f = open(resultFile,'w')
+            writer = csv.writer(f)
+            writer.writerow(header)
+            f.close()
+        except Exception as e:
+            print "Error working with %s: %s" % (resultFile, e)
+
 dataFile = "lahman/Teams.csv"
 years, numSeasons, teamNames, gamesPlayed, runsScored, runsA, BB, SO, HR, BBA, SOA, HRA = readDatabase (dataFile)
 
@@ -76,21 +94,7 @@ dir = "results/"
 if not os.path.exists(dir): # create results directory if it doesn't exist already 
     os.makedirs(dir)
 
-
-# create one CSV file for each team/season & write the standard header to it
-for i in range (0, numSeasons):
-    year = years[i]
-    teamName = teamNames[i]
-    teamName.replace('/', '-')
-    teamSeasonFile = str(year) + " " + teamName + '.csv'
-    resultFile = os.path.join(dir, teamSeasonFile)
-    try:
-        f = open(resultFile,'w')
-        writer = csv.writer(f)
-        writer.writerow(header)
-        f.close()
-    except Exception as e:
-        print "Error working with %s: %s" % (resultFile, e)
+createOutputFiles(years, teamNames, numSeasons)
 
 # compare teams, calculate scores, and write the scores to a file    
 for j in range (0, numSeasons):
