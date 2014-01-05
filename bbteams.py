@@ -2,26 +2,7 @@ import csv
 import pandas as pd
 import math
 import os
-
-'''
-Team Similarity Score Calculator (need to come up with a clever acronym)
-Starts with 1000 points between each team
-Subtracts:
-	Offense:
-	1 point for every difference of 10 runs scored
-	1 point for every 1 strikeout
-	1 point for every 1 walk
-	1 point for every 1 home run
-	
-	Defense/Pitching:
-	1 point for every difference of 10 runs allowed
-	1 point for every 1 strikeout allowed
-	1 point for every 1 walk allowed
-	1 point for every 1 home run allowed
-
-Adapted from Bill James' Similarity Scores method. 
-Uses Lahman's Baseball Database (http://www.seanlahman.com/baseball-archive/statistics/)
-'''
+from sys import exit
 
 def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2):
     '''
@@ -61,28 +42,40 @@ def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, 
     hrA = HRA[index]
     return year, team, runsScored, runsAllowed, strikeouts, hrHit, walks, strikeoutsA, walksA, hrA
 
-dataFile = "lahman/Teams.csv"
-#open Teams database file
-df = pd.read_csv(dataFile)
-#Get teams' info
-years = df.yearID
-teamNames = df.name
-gamesPlayed = df.G # for normalizing all stats to 162-game season 
-#Get pythagorean stats
-runsScored = df.R
-runsA = df.RA
-#Get FIP stats for offense
-BB = df.BB # walks by offense
-SO = df.SO # strikeouts by offense
-HR = df.HR # home runs by offense
-#Get FIP stats for pitchers
-BBA = df.BBA # walks allowed by pitchers
-SOA = df.SOA # strikeouts by pitchers
-HRA = df.HRA # home runs allowed by pitchers
+def readDatabase(datafile):
+    '''
+    Read data from the Lahman database file.
+    '''
+    try:
+        df = pd.read_csv(dataFile)
+        #Get teams' info
+        years = df.yearID
+        numSeasons = len(years)
+        teamNames = df.name
+        gamesPlayed = df.G # for normalizing all stats to 162-game season 
+        #Get pythagorean stats
+        runsScored = df.R
+        runsA = df.RA
+        #Get FIP stats for offense
+        BB = df.BB # walks by offense
+        SO = df.SO # strikeouts by offense
+        HR = df.HR # home runs by offense
+        #Get FIP stats for pitchers
+        BBA = df.BBA # walks allowed by pitchers
+        SOA = df.SOA # strikeouts by pitchers
+        HRA = df.HRA # home runs allowed by pitchers
+        return years, numSeasons, teamNames, gamesPlayed, runsScored, runsA, BB, SO, HR, BBA, SOA, HRA
+    except Exception as e:
+        exit("Error reading from %s: %s" % (dataFile, e))
 
-numSeasons = len(years)
+dataFile = "lahman/Teams.csv"
+years, numSeasons, teamNames, gamesPlayed, runsScored, runsA, BB, SO, HR, BBA, SOA, HRA = readDatabase (dataFile)
+
 header = ["comparedTeam", "simscore"]
 dir = "results/"
+if not os.path.exists(dir): # create results directory if it doesn't exist already 
+    os.makedirs(dir)
+
 
 # create one CSV file for each team/season & write the standard header to it
 for i in range (0, numSeasons):
