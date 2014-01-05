@@ -16,7 +16,7 @@ For defense, we then subtract:
 	1 point for every 1 walk allowed
 	1 point for every 1 home run allowed
 
-The output of this script is one .csv file for each team/season. For example, 2011 Baltimore Orioles.csv and 2012 Baltimore Orioles.csv.
+The output of this script is one .csv file for each team/season. For example, 2011 Baltimore Orioles.csv and 2012 Baltimore Orioles.csv. Currently all .csv file are stored in a "results" subdirectory which is created if it doesn't exist already.
 
 Each .csv file has 2714 rows defining the similarity score between that team and all the others.
 
