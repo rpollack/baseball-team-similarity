@@ -1,7 +1,8 @@
 import csv
 import pandas as pd
-import sys
 import math
+import os
+
 '''
 Team Similarity Score Calculator (need to come up with a clever acronym)
 Starts with 1000 points between each team
@@ -22,29 +23,24 @@ Adapted from Bill James' Similarity Scores method.
 Uses Lahman's Baseball Database (http://www.seanlahman.com/baseball-archive/statistics/)
 '''
 
-#open Teams database file
-df = pd.read_csv('lahman/Teams.csv')
-
-#Get teams' info
-years = df.yearID
-teamNames = df.name
-gamesPlayed = df.G # for normalizing all stats to 162-game season 
-#Get pythagorean stats
-runsScored = df.R
-runsA = df.RA
-#Get FIP stats for offense
-BB = df.BB # walks by offense
-SO = df.SO # strikeouts by offense
-HR = df.HR # home runs by offense
-#Get FIP stats for pitchers
-BBA = df.BBA # walks allowed by pitchers
-SOA = df.SOA # strikeouts by pitchers
-HRA = df.HRA # home runs allowed by pitchers
-
-numSeasons = len(years)
-numCompares = numSeasons * (numSeasons -1) #the total number of comparisons we do, comparing each team against every other team but itself
-
-comparedTeams = [] # initialize the list that holds team comparisons to prevent duplicate comparisons
+def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2):
+    '''
+    Compares the stats of two teams and calculates how similar the teams are.
+    '''
+    startingScore = 1000
+    runsScoredDivisor = 10 # the differential in runs scored that causes a one-point drop in similarity score between two teams
+    runsADivisor = 10
+    pointsOffRunsScored = int(abs(runsScored1 - runsScored2)/runsScoredDivisor)
+    pointsOffRunsA = int(abs(runsA1 - runsA2)/runsADivisor)
+    pointsOffSO = abs(strikeouts1-strikeouts2)
+    pointsOffHR = abs(hrHit1-hrHit2)
+    pointsOffBB = abs(walks1-walks2)
+    pointsOffSOA = abs(strikeoutsA1 - strikeoutsA2)
+    pointsOffBBA = abs(walksA1 - walksA2)
+    pointsOffHRA = abs(hrA1 - hrA2) 
+    totalPointsOff = pointsOffRunsScored + pointsOffRunsA + pointsOffSO + pointsOffHR + pointsOffBB + pointsOffSOA + pointsOffBBA + pointsOffHRA
+    similarityScore = startingScore - totalPointsOff
+    return similarityScore
 
 def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, index):
     '''
@@ -65,81 +61,62 @@ def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, 
     hrA = HRA[index]
     return year, team, runsScored, runsAllowed, strikeouts, hrHit, walks, strikeoutsA, walksA, hrA
 
-def needToCompare(yearA, teamA, yearB, teamB, comparedTeams):
-    '''
-    Given teams A and B, returns True if we have already compared team B to team A or if Team A == Team B.
-    '''
-    doCompare = True # by default assume we need to compare the teams
-    seasonA = str(yearA) + teamA 
-    seasonB = str(yearB) + teamB
-    
-    if seasonA == seasonB: # prevent comparing a team-year against itself
-        doCompare = False
-    else:
-        # teams are unique, but see if we've already compared them
-        for c in comparedTeams:
-            if seasonA == c[0]:
-                if seasonB == c[1]:
-                     doCompare = False
-            elif seasonA == c[1]:
-                if seasonB == c[0]:
-                     doCompare = False
-    return doCompare
-'''
-    if doCompare:
-        print "Comparing %s and %s." % (seasonA, seasonB)
-    else:
-        print "Skipping unnecessary comparison."
-'''
-       
+dataFile = "lahman/Teams.csv"
+#open Teams database file
+df = pd.read_csv(dataFile)
+#Get teams' info
+years = df.yearID
+teamNames = df.name
+gamesPlayed = df.G # for normalizing all stats to 162-game season 
+#Get pythagorean stats
+runsScored = df.R
+runsA = df.RA
+#Get FIP stats for offense
+BB = df.BB # walks by offense
+SO = df.SO # strikeouts by offense
+HR = df.HR # home runs by offense
+#Get FIP stats for pitchers
+BBA = df.BBA # walks allowed by pitchers
+SOA = df.SOA # strikeouts by pitchers
+HRA = df.HRA # home runs allowed by pitchers
 
-def calcSimilarity(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2):
-    startingScore = 1000
-    runsScoredDivisor = 10 # the differential in runs scored that causes a one-point drop in similarity score between two teams
-    runsADivisor = 10
-    pointsOffRunsScored = int(abs(runsScored1 - runsScored2)/runsScoredDivisor)
-    pointsOffRunsA = int(abs(runsA1 - runsA2)/runsADivisor)
-    pointsOffSO = abs(strikeouts1-strikeouts2)
-    pointsOffHR = abs(hrHit1-hrHit2)
-    pointsOffBB = abs(walks1-walks2)
-    pointsOffSOA = abs(strikeoutsA1 - strikeoutsA2)
-    pointsOffBBA = abs(walksA1 - walksA2)
-    pointsOffHRA = abs(hrA1 - hrA2) 
-    totalPointsOff = pointsOffRunsScored + pointsOffRunsA + pointsOffSO + pointsOffHR + pointsOffBB + pointsOffSOA + pointsOffBBA + pointsOffHRA
-    similarityScore = startingScore - totalPointsOff
-    return similarityScore
+numSeasons = len(years)
+header = ["comparedTeam", "simscore"]
+dir = "results/"
 
-#open file that will contain the results
-resultFile = "similarityscores.csv"
-f = open(resultFile,'w')
-#header = ["year1", "team1", "year2", "team2", "R1", "R2", "RA1", "RA2", "BB1", "BB2", "SO1", "SO2", "HR1", "HR2", "BBA1", "BBA2", "SOA1", "SOA2", "HRA1", "HRA2", "simscore"]
+# create one CSV file for each team/season & write the standard header to it
+for i in range (0, numSeasons):
+    year = years[i]
+    teamName = teamNames[i]
+    teamName.replace('/', '-')
+    teamSeasonFile = str(year) + " " + teamName + '.csv'
+    resultFile = os.path.join(dir, teamSeasonFile)
+    try:
+        f = open(resultFile,'w')
+        writer = csv.writer(f)
+        writer.writerow(header)
+        f.close()
+    except Exception as e:
+        print "Error working with %s: %s" % (resultFile, e)
 
-header = ["year1", "team1", "year2", "team2", "simscore"]
-
-writer = csv.writer(f)
-writer.writerow(header)
-
-for i in range (0, numSeasons):    
-    year1, team1, runsScored1, runsA1, strikeouts1, hrHit1, walks1, strikeoutsA1, walksA1, hrA1 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, i)
-    for j in range (0, numSeasons):
-        #get the info to find out whether we need to compare the teams
-        team2 = teamNames[j]
-        year2 = years[j]
-        if needToCompare(year1, team1, year2, team2, comparedTeams):
-            # get all data for Team 2
-            year2, team2, runsScored2, runsA2, strikeouts2, hrHit2, walks2, strikeoutsA2, walksA2, hrA2 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, j)
-            similarityScore = calcSimilarity(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2)  
-            
-            similarityData = [year1, team1, year2, team2, similarityScore]
-            
-            #similarityData = [year1, team1, year2, team2, runsScored1, runsScored2, runsA1, runsA2, walks1, walks2, strikeouts1, strikeouts2, hrHit1, hrHit2, walksA1, walksA2, strikeoutsA1, strikeoutsA2, hrA1, hrA2, similarityScore]
-            writer.writerow(similarityData)
-            
-            # store year1/team1 and year2/team2 in a list of already-compared teams
-            justCompared = [str(year1) + team1, str(year2) + team2]
-            comparedTeams.append(justCompared)
-print "Complete."
-f.close()
-            
-#account for different-length seasons & convert to 162-game seasons (linear regression?)
-#for each team, find the top 10 most similar teams and display the data that went into it
+# compare teams, calculate scores, and write the scores to a file    
+for j in range (0, numSeasons):
+        year1, team1, runsScored1, runsA1, strikeouts1, hrHit1, walks1, strikeoutsA1, walksA1, hrA1 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, j)
+        id1 = str(year1) + ' ' + team1
+        fileToOpen = os.path.join(dir, id1) + '.csv'
+        print "Writing to %s." % fileToOpen # to track status
+        try:
+            f = open(fileToOpen, 'a')
+            results = csv.writer(f)
+            for k in range (0, numSeasons):
+                year2, team2, runsScored2, runsA2, strikeouts2, hrHit2, walks2, strikeoutsA2, walksA2, hrA2 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, k)
+                id2 = str(year2) + ' ' + team2
+                if (id1 != id2): # prevent comparing a team to itself
+                    row = [] # start a blank row for a new comparison
+                    row.append(id2) #add the comparison's team as the first column
+                    simScore = compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2)
+                    row.append(simScore)
+                    results.writerow(row)
+        except Exception as e:
+            print "Error working with %s: %s" % (fileToOpen, e) 
+        f.close() #we are done with team J's CSV file.
