@@ -1,6 +1,6 @@
 import csv
 import pandas as pd
-import math
+from math import isnan
 import os
 from sys import exit
 
@@ -31,7 +31,7 @@ def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, 
     team = teamNames[index]
     runsScored = runsScored[index] # converts partial seasons to 162-game ones
     runsAllowed = runsA[index]
-    if math.isnan(SO[index]): #lahman's DB doesn't have SO numbers for many years. if we don't set them to 0, they'll come up as NaN which will screw up the calculations.
+    if isnan(SO[index]): #lahman's DB doesn't have SO numbers for many years. if we don't set them to 0, they'll come up as NaN which will screw up the calculations.
         strikeouts = 0
     else:
         strikeouts = int(SO[index]) # for some reason, SOs are being read as floats. force them to ints here.
