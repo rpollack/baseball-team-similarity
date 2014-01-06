@@ -16,13 +16,17 @@ For defense, we then subtract:
 	1 point for every 1 walk allowed
 	1 point for every 1 home run allowed
 
-The output of this script is one .csv file for each team/season. For example, 2011 Baltimore Orioles.csv and 2012 Baltimore Orioles.csv. Currently all .csv file are stored in a "results" subdirectory which is created if it doesn't exist already.
+All calculations are made using a 162-game equivalent season.
 
-Each .csv file has 2714 rows defining the similarity score between that team and all the others.
+The input to this script is the Teams.csv file available from the Lahman database. It is expected to be located at 'lahman/Teams.csv' relative to this script.
+
+The output of this script is one .csv file for each team/season. Each .csv file consists of rows defining the similarity score between that team and all the others.
+
+For example, 2011 Baltimore Orioles.csv and 2012 Baltimore Orioles.csv. Currently all .csv file are stored in a "results" subdirectory which is created if it doesn't exist already.
 
 For example, 2011 Baltimore Orioles.csv might look like this:
 2010 Texas Rangers, 857
-2010 Washing Nationals, 857
+2010 Washington Nationals, 365
 
 ... and so on.
 
