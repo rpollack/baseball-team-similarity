@@ -25,3 +25,5 @@ For example, 2011 Baltimore Orioles.csv might look like this:
 2010 Washing Nationals, 857
 
 ... and so on.
+
+Teams are not compared with themselves; that is, in 2012 Miami Marlins.csv, there is no line for 2012 Miami Marlins. But there is some duplication. For example, the score between the 2012 Chicago Cubs and 1978 Detroit Tigers will exist in both 2012 Chicago Cubs.csv and 1978 Detroit Tigers.csv.
