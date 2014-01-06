@@ -20,14 +20,13 @@ All calculations are made using a 162-game equivalent season.
 
 The input to this script is the Teams.csv file available from the Lahman database. It is expected to be located at 'lahman/Teams.csv' relative to this script.
 
-The output of this script is one .csv file for each team/season. Each .csv file consists of rows defining the similarity score between that team and all the others.
+The output of this script is one .csv file for each team/season. Each .csv file consists of rows defining the similarity score between that team and all the others. For example, 2011 Baltimore Orioles.csv might look like this:
 
-For example, 2011 Baltimore Orioles.csv and 2012 Baltimore Orioles.csv. Currently all .csv file are stored in a "results" subdirectory which is created if it doesn't exist already.
-
-For example, 2011 Baltimore Orioles.csv might look like this:
+comparedTeam,simScore
 2010 Texas Rangers, 857
 2010 Washington Nationals, 365
 
-... and so on.
+... and so on. Currently all .csv file are stored in a "results" subdirectory which is created if it doesn't exist already.
+
 
 Teams are not compared with themselves; that is, in 2012 Miami Marlins.csv, there is no line for 2012 Miami Marlins. But there is some duplication. For example, the score between the 2012 Chicago Cubs and 1978 Detroit Tigers will exist in both 2012 Chicago Cubs.csv and 1978 Detroit Tigers.csv.
