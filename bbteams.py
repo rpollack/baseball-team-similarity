@@ -23,23 +23,25 @@ def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeou
     similarityScore = startingScore - totalPointsOff
     return similarityScore
 
-def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, index):
+def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, G, index):
     '''
-    Returns team information contained in the arrays that represent the database.
+    Returns team information contained in the arrays that represent the database. All stats are proportioned to a 162-game season.
     '''
+    fullSeason = 162 # number of games in a full season
     year = years[index]
     team = teamNames[index]
-    runsScored = runsScored[index] # converts partial seasons to 162-game ones
-    runsAllowed = runsA[index]
+    gamesRatio = float(fullSeason/G[index])
+    runsScored = int(runsScored[index] * gamesRatio) # converts partial seasons to 162-game ones
+    runsAllowed = int(runsA[index] * gamesRatio)
     if isnan(SO[index]): #lahman's DB doesn't have SO numbers for many years. if we don't set them to 0, they'll come up as NaN which will screw up the calculations.
         strikeouts = 0
     else:
-        strikeouts = int(SO[index]) # for some reason, SOs are being read as floats. force them to ints here.
-    hrHit = HR[index]
-    walks = BB[index]
-    strikeoutsA = SOA[index]
-    walksA = BBA[index]
-    hrA = HRA[index]
+        strikeouts = int(SO[index] * gamesRatio)
+    hrHit = int(HR[index] * gamesRatio)
+    walks = int(BB[index] * gamesRatio)
+    strikeoutsA = int(SOA[index] * gamesRatio)
+    walksA = int(BBA[index] * gamesRatio)
+    hrA = int(HRA[index] * gamesRatio)
     return year, team, runsScored, runsAllowed, strikeouts, hrHit, walks, strikeoutsA, walksA, hrA
 
 def readDatabase(datafile):
@@ -52,7 +54,7 @@ def readDatabase(datafile):
         years = df.yearID
         numSeasons = len(years)
         teamNames = df.name
-        gamesPlayed = df.G # for normalizing all stats to 162-game season 
+        G = df.G # number of games played that season
         #Get pythagorean stats
         runsScored = df.R
         runsA = df.RA
@@ -64,7 +66,7 @@ def readDatabase(datafile):
         BBA = df.BBA # walks allowed by pitchers
         SOA = df.SOA # strikeouts by pitchers
         HRA = df.HRA # home runs allowed by pitchers
-        return years, numSeasons, teamNames, gamesPlayed, runsScored, runsA, BB, SO, HR, BBA, SOA, HRA
+        return years, numSeasons, teamNames, G, runsScored, runsA, BB, SO, HR, BBA, SOA, HRA
     except Exception as e:
         exit("Error reading from %s: %s" % (dataFile, e))
 
@@ -88,7 +90,7 @@ def createOutputFiles(years, teamNames, numSeasons):
             print "Error working with %s: %s" % (resultFile, e)
 
 dataFile = "lahman/Teams.csv"
-years, numSeasons, teamNames, gamesPlayed, runsScored, runsA, BB, SO, HR, BBA, SOA, HRA = readDatabase (dataFile)
+years, numSeasons, teamNames, G, runsScored, runsA, BB, SO, HR, BBA, SOA, HRA = readDatabase(dataFile)
 
 header = ["comparedTeam", "simscore"]
 dir = "results/"
@@ -99,7 +101,7 @@ createOutputFiles(years, teamNames, numSeasons)
 
 # compare teams, calculate scores, and write the scores to a file    
 for j in range (0, numSeasons):
-        year1, team1, runsScored1, runsA1, strikeouts1, hrHit1, walks1, strikeoutsA1, walksA1, hrA1 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, j)
+        year1, team1, runsScored1, runsA1, strikeouts1, hrHit1, walks1, strikeoutsA1, walksA1, hrA1 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, G, j)
         id1 = str(year1) + ' ' + team1
         fileToOpen = os.path.join(dir, id1) + '.csv'
         print "Writing to %s." % fileToOpen # to track status
@@ -107,7 +109,7 @@ for j in range (0, numSeasons):
             f = open(fileToOpen, 'a')
             results = csv.writer(f)
             for k in range (0, numSeasons):
-                year2, team2, runsScored2, runsA2, strikeouts2, hrHit2, walks2, strikeoutsA2, walksA2, hrA2 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, k)
+                year2, team2, runsScored2, runsA2, strikeouts2, hrHit2, walks2, strikeoutsA2, walksA2, hrA2 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, G, k)
                 id2 = str(year2) + ' ' + team2
                 if (id1 != id2): # prevent comparing a team to itself
                     row = [] # start a blank row for a new comparison
