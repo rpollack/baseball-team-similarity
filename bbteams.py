@@ -75,7 +75,8 @@ def createOutputFiles(years, teamNames, numSeasons):
     for i in range (0, numSeasons):
         year = years[i]
         teamName = teamNames[i]
-        teamName.replace('/', '-')
+        teamName = teamName.replace('/', '-')
+        # deal with filename "1884 Chicago/Pittsburgh (Union League).csv"
         teamSeasonFile = str(year) + " " + teamName + '.csv'
         resultFile = os.path.join(dir, teamSeasonFile)
         try:
@@ -116,4 +117,4 @@ for j in range (0, numSeasons):
                     results.writerow(row)
         except Exception as e:
             print "Error working with %s: %s" % (fileToOpen, e) 
-        f.close() #we are done with team J's CSV file.
+        f.close() #we are done with team J's CSV file.       
