@@ -104,7 +104,6 @@ createOutputFiles(years, teamNames, numSeasons)
 for j in range (0, numSeasons):
         year1, team1, runsScored1, runsA1, strikeouts1, hrHit1, walks1, strikeoutsA1, walksA1, hrA1 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, G, j)
         id1 = str(year1) + ' ' + team1
-        
         fileToOpen = os.path.join(dir, id1) + '.csv'
         print "Writing to %s." % fileToOpen # to track status
         try:
