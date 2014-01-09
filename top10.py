@@ -1,0 +1,47 @@
+import csv
+import pandas as pd
+from os import listdir
+from os import path
+from os import makedirs
+from os.path import exists, join, isfile
+
+header = ["comparedTeam, simScore"] #for writing to the top 10 scores file
+
+dir = "results"
+files = [ f for f in listdir(dir) if isfile(join(dir,f)) ] # gets list of only files in /results/
+
+top10dir = "top10"
+newDir = path.join(dir, top10dir) # create /results/top10 which will hold the highscore files.
+
+if not path.exists(newDir): # create /results/top10 directory if it doesn't exist already 
+    makedirs(newDir)
+
+for file in files:
+    completePath = path.join(dir, file)
+    print "reading from %s" % completePath
+    df = pd.read_csv(completePath)
+    teamName, sep, after = file.partition(".") # get the name of the team from the .csv filename
+    scores = df.simscore
+    teams = df.comparedTeam
+    newList = []
+    for i in range (0, 10):  
+        m = scores.max() #find the maximum similarity score in the list
+        maxIdx = scores.idxmax() # get the position of the maximum score
+        team = teams[maxIdx] # find the corresponding value in list 1
+        maxVals = [team, m] # combine team name, similarity score
+        newList.append(maxVals) # add team name, similarity score to the list of the top 5 scores
+        #remove previously-found value from lists so they won't be found again
+        scores = scores.drop([maxIdx])
+        teams = teams.drop([maxIdx])
+    
+    #write the highest teams/scores to a file
+    top10File = teamName + "_top10.csv" # ex: 2010 Baltimore Orioles_top10.csv
+    newPath = path.join(newDir, top10File)
+    f = open(newPath,'w')
+    writer = csv.writer(f)
+    writer.writerow(header)
+    for row in newList:
+        writer.writerow(row)
+    f.close()
+
+#if the max we just found was equal to the max found before that, we will have to dig deeper in the list to get five scores (because there are some ties in the list)
