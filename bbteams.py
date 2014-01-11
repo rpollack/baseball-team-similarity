@@ -78,8 +78,10 @@ def createOutputFiles(years, teamNames, numSeasons):
     for i in range (0, numSeasons):
         year = years[i]
         teamName = teamNames[i]
-        teamName = teamName.replace('/', '-')
-        # deal with filename "1884 Chicago/Pittsburgh (Union League).csv"
+        if teamName == "Chicago/Pittsburgh (Union League)":
+            # the / causes an error because the computer thinks it's a dir separator 
+            teamName = "Chicago Pittsburgh (Union League)"
+            teamNames.loc[i] = teamName
         teamSeasonFile = str(year) + " " + teamName + '.csv'
         resultFile = os.path.join(dir, teamSeasonFile)
         try:
