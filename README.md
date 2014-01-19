@@ -3,18 +3,19 @@ Script by Ryan Pollack (http://www.ryanpollack.com)
 Adapted from Bill James' Similarity Scores method. 
 Uses Lahman's Baseball Database (http://www.seanlahman.com/baseball-archive/statistics/)
 
-Starts with 1000 points between each team
+Starts with 1000 points between each team.
 For offense, we then subtract:
 	1 point for every difference of 10 runs scored. The reason is that every 10 runs is roughly one win.
-	1 point for every 1 strikeout
-	1 point for every 1 walk
-	1 point for every 1 home run
+	1 point for every difference of one strikeout
+	1 point for every difference of one walk
+	1 point for every one home run
+	1 point for every one stolen base
 	
 For defense, we then subtract:
 	1 point for every difference of 10 runs allowed. Same reason as above for the runs scored.
-	1 point for every 1 strikeout allowed
-	1 point for every 1 walk allowed
-	1 point for every 1 home run allowed
+	1 point for every one strikeout allowed
+	1 point for every one walk allowed
+	1 point for every one home run allowed
 
 All calculations are made using a 162-game equivalent season.
 
