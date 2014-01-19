@@ -48,7 +48,6 @@ def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, 
     strikeoutsA = int(SOA[index] * gamesRatio)
     walksA = int(BBA[index] * gamesRatio)
     hrA = int(HRA[index] * gamesRatio)
-    print "Stolen bases for %s %s: %s" % (year, team, sb)
     return year, team, runsScored, runsAllowed, strikeouts, hrHit, walks, strikeoutsA, walksA, hrA, sb
 
 def readDatabase(datafile):
@@ -115,7 +114,6 @@ for j in range (0, numSeasons):
         year1, team1, runsScored1, runsA1, strikeouts1, hrHit1, walks1, strikeoutsA1, walksA1, hrA1, sb1 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, G, SB, j)
         id1 = str(year1) + ' ' + team1
         fileToOpen = os.path.join(dir, id1) + '.csv'
-        print "Writing to %s." % fileToOpen # to track status
         try:
             f = open(fileToOpen, 'a')
             results = csv.writer(f)
