@@ -4,9 +4,6 @@ from math import isnan
 import os
 from sys import exit
 
-
-# INCORPORATE ERRORS & UNEARNED RUNS
-
 def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2):
     '''
     Compares the stats of two teams and calculates how similar the teams are.
