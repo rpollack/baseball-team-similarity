@@ -91,7 +91,7 @@ def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, 
     avgHRA = int(avg.get_value(year, 'HRA'))
     HRAPlus = calcRelativeStats(hrA, avgHRA)
     
-    return year, team, runsScoredPlus, runsAllowedPlis, strikeoutsPlus, hrHitPlus, walksPlus, strikeoutsAPlus, walksAPlus, HRAPlus, sbPlus, errorsPlus
+    return year, team, runsScoredPlus, runsAllowedPlus, strikeoutsPlus, hrHitPlus, walksPlus, strikeoutsAPlus, walksAPlus, HRAPlus, sbPlus, errorsPlus
 
 def readDatabase(datafile):
     '''
