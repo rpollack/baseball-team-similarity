@@ -3,6 +3,7 @@ import pandas as pd
 from math import isnan
 import os
 from sys import exit
+import numpy as np
 
 def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2):
     '''
@@ -25,32 +26,72 @@ def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeou
     similarityScore = startingScore - totalPointsOff 
     return similarityScore
 
-def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, G, SB, E, index):
+def calcRelativeStats(team, average):
     '''
-    Returns team information contained in the arrays that represent the database. All stats are proportioned to a 162-game season.
+    For a stat, calculates a team's performance relative to the average for that year.
     '''
-    fullSeason = 162 # number of games in a full season
+    return int(100*(float(team) / float(average)))
+
+def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, G, SB, E, avg, index):
+    '''
+    Returns team's stats relative to the average team of that year. This methodology allows us to fairly compare teams across years by accounting for changes in talent level, approach to the game, run scoring environment, and so on.
+    
+    For example, the 2008 Red Sox struck out 1068 times. The average team in 2008 struck out 1099 times. Therefore the Red Sox's relative stat is (100*(1068/1099)) or 97, meaning they struck out 97% as often as the average team. Put another way, the Red Sox struck out 3% less often than the average team.
+    
+    That's an example where fewer is better. For stats where more is better, you subtract 100 from the result instead of subtracting the result from 100. An example of where more is better is runs scored. The 2008 Red Sox scored 845 runs, whereas the average team scored 751. 100*(845/751) is 112, meaning they scored 112-100 or 12% more runs than the average team that year.
+    
+    This method does not take into account the strength of the AL vs. the NL. It just compares each team to all other teams in MLB.
+    '''
+    
     year = years[index]
     team = teamNames[index]
-    gamesPlayed = G[index]
-    gamesRatio = float(fullSeason)/float(gamesPlayed)
-    runsScored = int(runsScored[index] * gamesRatio) # converts partial seasons to 162-game ones
-    runsAllowed = int(runsA[index] * gamesRatio)
-    errors = int(E[index] * gamesRatio)
+    
+    runsScored = runsScored[index]
+    runsScoredPlus = int(100*(float(runsScored)/ avg.get_value(year, 'R')))
+    
+    runsAllowed = int(runsA[index])
+    avgRunsAllowed = int(avg.get_value(year, 'RA'))
+    runsAllowedPlus = calcRelativeStats(runsAllowed, avgRunsAllowed)
+    
+    errors = int(E[index])
+    avgErrors = int(avg.get_value(year, 'E'))
+    errorsPlus = calcRelativeStats(errors, avgErrors)
+    
     if isnan(SO[index]): #lahman's DB doesn't have SO numbers for many years. if we don't set them to 0, they'll come up as NaN which will screw up the calculations.
-        strikeouts = 0
+        strikeoutsPlus = 0
     else:
-        strikeouts = int(SO[index] * gamesRatio)
+        strikeouts = int(SO[index])
+        avgStrikeouts = int(avg.get_value(year, 'SO'))
+        strikeoutsPlus = calcRelativeStats(strikeouts, avgStrikeouts)
+        
     if isnan(SB[index]):
-        sb = 0
+        sbPlus = 0
     else:
-        sb = int(SB[index] * gamesRatio)
-    hrHit = int(HR[index] * gamesRatio)
-    walks = int(BB[index] * gamesRatio)
-    strikeoutsA = int(SOA[index] * gamesRatio)
-    walksA = int(BBA[index] * gamesRatio)
-    hrA = int(HRA[index] * gamesRatio)
-    return year, team, runsScored, runsAllowed, strikeouts, hrHit, walks, strikeoutsA, walksA, hrA, sb, errors
+        sb = int(SB[index])
+        avgSB = int(avg.get_value(year, 'SB'))
+        sbPlus = calcRelativeStats(sb, avgSB)
+
+    hrHit = int(HR[index])
+    avgHRHit = int(avg.get_value(year, 'HR'))
+    sbPlus = calcRelativeStats(hrHit, avgHRHit)
+    
+    walks = int(BB[index])
+    avgWalks = int(avg.get_value(year, 'BB'))
+    walksPlus = calcRelativeStats(walks, avgWalks)
+    
+    strikeoutsA = int(SOA[index])
+    avgSOA = int(avg.get_value(year, 'SOA'))
+    SOAPlus = calcRelativeStats(SOA, avgSOA)
+    
+    walksA = int(BBA[index])
+    avgWalksA = int(avg.get_value(year, 'BBA'))
+    walksAPlus = calcRelativeStats(walksA, walksAPlus)
+    
+    hrA = int(HRA[index])
+    avgHRA = int(avg.get_value(year, 'HRA'))
+    HRAPlus = calcRelativeStats(hrA, avgHRA)
+    
+    return year, team, runsScoredPlus, runsAllowedPlis, strikeoutsPlus, hrHitPlus, walksPlus, strikeoutsAPlus, walksAPlus, HRAPlus, sbPlus, errorsPlus
 
 def readDatabase(datafile):
     '''
@@ -78,7 +119,12 @@ def readDatabase(datafile):
         SB = df.SB
         #Get errors
         E = df.E
-        return years, numSeasons, teamNames, G, runsScored, runsA, BB, SO, HR, BBA, SOA, HRA, SB, E
+        
+        #Compute annual averages for all the stats we care about
+        grouped = df.groupby('yearID')
+        avg = grouped.agg({'BB': np.mean, 'SO': np.mean, 'R':np.mean, 'RA': np.mean, 'HR': np.mean, 'BBA': np.mean, 'SOA': np.mean, 'HRA': np.mean, 'SB':np.mean, 'E':np.mean})
+        
+        return years, numSeasons, teamNames, G, runsScored, runsA, BB, SO, HR, BBA, SOA, HRA, SB, E, avg
     except Exception as e:
         exit("Error reading from %s: %s" % (dataFile, e))
 
@@ -101,10 +147,10 @@ def createOutputFiles(years, teamNames, numSeasons):
             writer.writerow(header)
             f.close()
         except Exception as e:
-            print "Error working with %s: %s" % (resultFile, e)
+            print "Error creating %s: %s" % (resultFile, e)
 
 dataFile = "lahman/Teams.csv"
-years, numSeasons, teamNames, G, runsScored, runsA, BB, SO, HR, BBA, SOA, HRA, SB, E = readDatabase(dataFile)
+years, numSeasons, teamNames, G, runsScored, runsA, BB, SO, HR, BBA, SOA, HRA, SB, E, avg = readDatabase(dataFile)
 
 header = ["comparedTeam", "simscore"]
 dir = "results/"
@@ -115,7 +161,7 @@ createOutputFiles(years, teamNames, numSeasons)
 
 # compare teams, calculate scores, and write the scores to a file    
 for j in range (0, numSeasons):
-        year1, team1, runsScored1, runsA1, strikeouts1, hrHit1, walks1, strikeoutsA1, walksA1, hrA1, sb1, e1 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, G, SB, E, j)
+        year1, team1, runsScored1, runsA1, strikeouts1, hrHit1, walks1, strikeoutsA1, walksA1, hrA1, sb1, e1 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, G, SB, E, avg, j)
         id1 = str(year1) + ' ' + team1
         fileToOpen = os.path.join(dir, id1) + '.csv'
         try:
