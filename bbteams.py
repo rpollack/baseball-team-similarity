@@ -73,7 +73,7 @@ def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, 
 
     hrHit = int(HR[index])
     avgHRHit = int(avg.get_value(year, 'HR'))
-    sbPlus = calcRelativeStats(hrHit, avgHRHit)
+    hrHitPlus = calcRelativeStats(hrHit, avgHRHit)
     
     walks = int(BB[index])
     avgWalks = int(avg.get_value(year, 'BB'))
@@ -81,17 +81,17 @@ def getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, 
     
     strikeoutsA = int(SOA[index])
     avgSOA = int(avg.get_value(year, 'SOA'))
-    SOAPlus = calcRelativeStats(SOA, avgSOA)
+    SOAPlus = calcRelativeStats(strikeoutsA, avgSOA)
     
     walksA = int(BBA[index])
     avgWalksA = int(avg.get_value(year, 'BBA'))
-    walksAPlus = calcRelativeStats(walksA, walksAPlus)
+    walksAPlus = calcRelativeStats(walksA, avgWalksA)
     
     hrA = int(HRA[index])
     avgHRA = int(avg.get_value(year, 'HRA'))
     HRAPlus = calcRelativeStats(hrA, avgHRA)
     
-    return year, team, runsScoredPlus, runsAllowedPlus, strikeoutsPlus, hrHitPlus, walksPlus, strikeoutsAPlus, walksAPlus, HRAPlus, sbPlus, errorsPlus
+    return year, team, runsScoredPlus, runsAllowedPlus, strikeoutsPlus, hrHitPlus, walksPlus, SOAPlus, walksAPlus, HRAPlus, sbPlus, errorsPlus
 
 def readDatabase(datafile):
     '''
@@ -164,19 +164,21 @@ for j in range (0, numSeasons):
         year1, team1, runsScored1, runsA1, strikeouts1, hrHit1, walks1, strikeoutsA1, walksA1, hrA1, sb1, e1 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, G, SB, E, avg, j)
         id1 = str(year1) + ' ' + team1
         fileToOpen = os.path.join(dir, id1) + '.csv'
+        print "%s:" % id1
         try:
             # Open Team J's results file for writing
             f = open(fileToOpen, 'a')
             results = csv.writer(f)
             for k in range (0, numSeasons):
-                year2, team2, runsScored2, runsA2, strikeouts2, hrHit2, walks2, strikeoutsA2, walksA2, hrA2, sb2, e2 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, G, SB, E, k)
+                year2, team2, runsScored2, runsA2, strikeouts2, hrHit2, walks2, strikeoutsA2, walksA2, hrA2, sb2, e2 = getTeamInfo(years, teamNames, runsScored, runsA, SO, HR, BB, SOA, BBA, HRA, G, SB, E, avg, k)
                 id2 = str(year2) + ' ' + team2                
                 if (id1 != id2): # prevent comparing a team to itself
                     row = [] # start a blank row for a new comparison
                     row.append(id2) #add the comparison team as the first column
                     simScore = compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2)
+                    print "\t%s: %s" % (id2, simScore)
                     row.append(simScore)
                     results.writerow(row)
         except Exception as e:
-            print "Error working with %s: %s" % (fileToOpen, e) 
+            print "Error opening %s: %s" % (fileToOpen, e) 
         f.close() #we are done with team J's CSV file.       
