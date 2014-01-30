@@ -10,10 +10,9 @@ def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeou
     Compares the stats of two teams and calculates how similar the teams are.
     '''
     startingScore = 1000
-    runsScoredDivisor = 10 # the differential in runs scored that causes a one-point drop in similarity score between two teams
-    runsADivisor = 10
-    pointsOffRunsScored = int(abs(runsScored1 - runsScored2)/runsScoredDivisor)
-    pointsOffRunsA = int(abs(runsA1 - runsA2)/runsADivisor)
+
+    pointsOffRunsScored = int(abs(runsScored1 - runsScored2))
+    pointsOffRunsA = int(abs(runsA1 - runsA2))
     pointsOffSO = abs(strikeouts1-strikeouts2)
     pointsOffHR = abs(hrHit1-hrHit2)
     pointsOffBB = abs(walks1-walks2)
