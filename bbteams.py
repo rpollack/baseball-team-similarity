@@ -7,13 +7,8 @@ import numpy as np
 
 '''
 offense, add:
-
-hits
-doubles
-triples
+OBP
 slugging %
-avg
-(calc OBP?)
 
 pitching, add:
 hits allowed
@@ -52,7 +47,6 @@ def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeou
     totalPointsOff = pointsOffRunsScored + pointsOffRunsA + pointsOffSO + pointsOffHR + pointsOffBB + pointsOffSOA + pointsOffBBA + pointsOffHRA + pointsOffSB + pointsOffE + pointsOffHits + pointsOffDoubles + pointsOffTriples
     similarityScore = startingScore - totalPointsOff 
     return similarityScore
-
 
 def getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR, BB, SOA, BBA, HRA, SB, E, avg, index):
     '''
@@ -126,40 +120,36 @@ def readDatabase(datafile):
     '''
     Read data from the Lahman database file.
     
-    Note that I had to rename the 2B and 3B columns to D and T, respectively. Python doesn't like identifiers that start with numbers.
+    Note that I had to rename the 2B and 3B columns to D and Trip, respectively. Python doesn't like identifiers that start with numbers. And for some reason if I named the triples column as T, Pandas read it in a way I couldn't make use of.
     '''
     try:
         df = pd.read_csv(dataFile)
+        
         #Get teams' info
         years = df.yearID
         numSeasons = len(years)
         teamNames = df.name
+        
         #Get pythagorean stats
         runsScored = df.R
         runsA = df.RA
+        
         #Get stats for offense
         H = df.H
         doubles = df.D
-        #print doubles.dtypes
         triples = df.Trip
-        '''
-        #reading as series but I want it as a data frame!?
-        #print "BLAH"
-        #print triples.dtypes
-        #triples = triples.astype(int, copy=False)
-        #print "TRIPLES:::"
-        ##print triples
-        #raw_input()
-        '''
         BB = df.BB # walks by offense
         SO = df.SO # strikeouts by offense
         HR = df.HR # home runs by offense
+        
         #Get FIP stats for pitchers
         BBA = df.BBA # walks allowed by pitchers
         SOA = df.SOA # strikeouts by pitchers
         HRA = df.HRA # home runs allowed by pitchers
+        
         #Get stolen bases
         SB = df.SB
+        
         #Get errors
         E = df.E
         
