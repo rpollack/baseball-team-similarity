@@ -25,7 +25,7 @@ def calcRelativeStats(team, average):
     '''
     return int(100*(float(team) / float(average)))
 
-def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2, hits1, hits2, doubles1, doubles2, triples1, triples2):
+def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2, hits1, hits2, doubles1, doubles2, triples1, triples2, hitsA1, hitsA2):
     '''
     Compares the stats of two teams and calculates how similar the teams are.
     '''
@@ -44,11 +44,12 @@ def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeou
     pointsOffHits = abs(hits1-hits2)
     pointsOffDoubles = abs(doubles1-doubles2)
     pointsOffTriples = abs(triples1-triples2)
-    totalPointsOff = pointsOffRunsScored + pointsOffRunsA + pointsOffSO + pointsOffHR + pointsOffBB + pointsOffSOA + pointsOffBBA + pointsOffHRA + pointsOffSB + pointsOffE + pointsOffHits + pointsOffDoubles + pointsOffTriples
+    pointsOffHitsAllowed = abs(hitsA1 - hitsA2)
+    totalPointsOff = pointsOffRunsScored + pointsOffRunsA + pointsOffSO + pointsOffHR + pointsOffBB + pointsOffSOA + pointsOffBBA + pointsOffHRA + pointsOffSB + pointsOffE + pointsOffHits + pointsOffDoubles + pointsOffTriples + pointsOffHitsAllowed
     similarityScore = startingScore - totalPointsOff 
     return similarityScore
 
-def getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR, BB, SOA, BBA, HRA, SB, E, avg, index):
+def getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR, BB, HA, SOA, BBA, HRA, SB, E, avg, index):
     '''
     Returns team's stats relative to the average team of that year. This methodology allows us to fairly compare teams across years by accounting for game-wide changes in offense and defense.
     This method does not take into account the strength of the AL vs. the NL. It just compares each team to all other teams in MLB that year.
@@ -102,6 +103,10 @@ def getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR
     avgWalks = int(avg.get_value(year, 'BB'))
     walksPlus = calcRelativeStats(walks, avgWalks)
     
+    hitsA = int(HA[index])
+    avgHitsA = int(avg.get_value(year, 'HA'))
+    HAPlus = calcRelativeStats(hitsA, avgHitsA)
+    
     strikeoutsA = int(SOA[index])
     avgSOA = int(avg.get_value(year, 'SOA'))
     SOAPlus = calcRelativeStats(strikeoutsA, avgSOA)
@@ -114,7 +119,7 @@ def getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR
     avgHRA = int(avg.get_value(year, 'HRA'))
     HRAPlus = calcRelativeStats(hrA, avgHRA)
     
-    return year, team, runsScoredPlus, hitsPlus, doublesPlus, triplesPlus, runsAllowedPlus, strikeoutsPlus, hrHitPlus, walksPlus, SOAPlus, walksAPlus, HRAPlus, sbPlus, errorsPlus
+    return year, team, runsScoredPlus, hitsPlus, doublesPlus, triplesPlus, runsAllowedPlus, strikeoutsPlus, hrHitPlus, walksPlus, HAPlus, SOAPlus, walksAPlus, HRAPlus, sbPlus, errorsPlus
 
 def readDatabase(datafile):
     '''
@@ -142,10 +147,11 @@ def readDatabase(datafile):
         SO = df.SO # strikeouts by offense
         HR = df.HR # home runs by offense
         
-        #Get FIP stats for pitchers
+        #Get stats for pitchers
         BBA = df.BBA # walks allowed by pitchers
         SOA = df.SOA # strikeouts by pitchers
         HRA = df.HRA # home runs allowed by pitchers
+        HA = df.HA # hits allowed by pitchers
         
         #Get stolen bases
         SB = df.SB
@@ -155,9 +161,9 @@ def readDatabase(datafile):
         
         #Compute annual averages for all the stats we care about
         grouped = df.groupby('yearID')
-        avg = grouped.agg({'BB': np.mean, 'SO': np.mean, 'R':np.mean, 'RA': np.mean, 'HR': np.mean, 'BBA': np.mean, 'SOA': np.mean, 'HRA': np.mean, 'SB':np.mean, 'E':np.mean, 'D':np.mean, 'Trip':np.mean, 'H':np.mean})
+        avg = grouped.agg({'BB': np.mean, 'SO': np.mean, 'R':np.mean, 'RA': np.mean, 'HR': np.mean, 'BBA': np.mean, 'SOA': np.mean, 'HRA': np.mean, 'SB':np.mean, 'E':np.mean, 'D':np.mean, 'Trip':np.mean, 'H':np.mean, 'HA':np.mean})
         
-        return years, numSeasons, teamNames, runsScored, runsA, H, doubles, triples, BB, SO, HR, BBA, SOA, HRA, SB, E, avg
+        return years, numSeasons, teamNames, runsScored, runsA, H, doubles, triples, BB, SO, HR, HA, BBA, SOA, HRA, SB, E, avg
     except Exception as e:
         exit("Error reading from %s: %s" % (dataFile, e))
 
@@ -183,7 +189,7 @@ def createOutputFiles(years, teamNames, numSeasons):
             print "Error creating %s: %s" % (resultFile, e)
 
 dataFile = "lahman/Teams.csv"
-years, numSeasons, teamNames, runsScored, runsA, H, doubles, triples, BB, SO, HR, BBA, SOA, HRA, SB, E, avg = readDatabase(dataFile)
+years, numSeasons, teamNames, runsScored, runsA, H, doubles, triples, BB, SO, HR, HA, BBA, SOA, HRA, SB, E, avg = readDatabase(dataFile)
 header = ["comparedTeam", "simscore"]
 dir = "results/"
 if not os.path.exists(dir): # create results directory if it doesn't exist already 
@@ -192,7 +198,7 @@ createOutputFiles(years, teamNames, numSeasons)
 
 # compare teams, calculate scores, and write the scores to a file    
 for j in range (0, numSeasons):
-        year1, team1, runsScored1, hits1, doubles1, triples1, runsA1, strikeouts1, hrHit1, walks1, strikeoutsA1, walksA1, hrA1, sb1, e1 = getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR, BB, SOA, BBA, HRA, SB, E, avg, j)
+        year1, team1, runsScored1, hits1, doubles1, triples1, runsA1, strikeouts1, hrHit1, walks1, hitsA1, strikeoutsA1, walksA1, hrA1, sb1, e1 = getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR, BB, HA, SOA, BBA, HRA, SB, E, avg, j)
         id1 = str(year1) + ' ' + team1
         print "Comparison team: %s" %id1
         fileToOpen = os.path.join(dir, id1) + '.csv'
@@ -201,13 +207,13 @@ for j in range (0, numSeasons):
             f = open(fileToOpen, 'a')
             results = csv.writer(f)
             for k in range (0, numSeasons):
-                year2, team2, runsScored2, hits2, doubles2, triples2, runsA2, strikeouts2, hrHit2, walks2, strikeoutsA2, walksA2, hrA2, sb2, e2 = getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR, BB, SOA, BBA, HRA, SB, E, avg, k)
+                year2, team2, runsScored2, hits2, doubles2, triples2, runsA2, strikeouts2, hrHit2, walks2, hitsA2, strikeoutsA2, walksA2, hrA2, sb2, e2 = getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR, BB, HA, SOA, BBA, HRA, SB, E, avg, k)
                 id2 = str(year2) + ' ' + team2                
                 if (id1 != id2): # prevent comparing a team to itself
                     print "\tto %s" %id2
                     row = [] # start a blank row for a new comparison
                     row.append(id2) #add the comparison team as the first column
-                    simScore = compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2, hits1, hits2, doubles1, doubles2, triples1, triples2)
+                    simScore = compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2, hits1, hits2, doubles1, doubles2, triples1, triples2, hitsA1, hitsA2)
                     row.append(simScore)
                     results.writerow(row)
         except Exception as e:
