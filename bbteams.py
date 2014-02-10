@@ -9,11 +9,6 @@ import numpy as np
 offense, add:
 OBP
 slugging %
-
-pitching, add:
-hits allowed
-shutouts
-CG
 '''
 
 
@@ -125,7 +120,7 @@ def readDatabase(datafile):
     '''
     Read data from the Lahman database file.
     
-    Note that I had to rename the 2B and 3B columns to D and Trip, respectively. Python doesn't like identifiers that start with numbers. And for some reason if I named the triples column as T, Pandas read it in a way I couldn't make use of.
+    Note that I had to rename the 2B and 3B columns to D and Trip, respectively. Python doesn't like identifiers that start with numbers. And for some reason if I named the triples column as T, Pandas read it in a way I couldn't make use of. So it's "Trip".
     '''
     try:
         df = pd.read_csv(dataFile)
