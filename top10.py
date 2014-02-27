@@ -18,16 +18,16 @@ if not path.exists(newDir): # create /results/top10 directory if it doesn't exis
 
 for file in files:
     completePath = path.join(dir, file)
-    print "reading from %s" % completePath
     df = pd.read_csv(completePath)
     teamName, sep, after = file.partition(".") # get the name of the team from the .csv filename
     scores = df.simscore
     teams = df.comparedTeam
     newList = []
+    print completePath
     for i in range (0, 10):  
         m = scores.max() #find the maximum similarity score in the list
         maxIdx = scores.idxmax() # get the position of the maximum score
-        team = teams[maxIdx] # find the corresponding value in list 1
+        team = teams[maxIdx] # find the team associated with the max score we just found
         maxVals = [team, m] # combine team name, similarity score
         newList.append(maxVals) # add team name, similarity score to the list of the top 5 scores
         #remove previously-found value from lists so they won't be found again
