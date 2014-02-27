@@ -22,9 +22,15 @@ This script compares teams throughout history based on how much better/worse the
 - Shutouts by pitchers
 - Errors committed by fielders
 
-The result of each scoring is a number relative to 100, where 100 is the average team's performance *for that year*. Starting with a score of 1000 between each team, the algorithm subtracts 1 point for each point of difference between two teams. The number remaining is the similarity score between the two teams.
+The result of each scoring is a number relative to 100, where 100 is the average team's performance *for that year*. Starting with a score of 1000 between each team, the algorithm subtracts 1 point for each point of difference between two teams. (Exception: it's every 2 points of difference for complete games.) The number remaining is the similarity score between the two teams.
 
-For example, if the 2008 Red Sox were 5% above average at something relative to 2008 and the 1963 Yankees were 10% above average at that same stat relative to 1963, the algorithm would compute abs(5-10) or 5 points to subtract from 1000 when it compared these two teams.  
+For example, say the 2008 Red Sox compiled 5% more walks than the average team in 2008 and the 1963 Yankees compiled 20% fewer walks than the average team in 1963. The Red Sox's initial score would be 105 and the Yankees' score at that same stat would be 80.
+
+In this situation, the algorithm would compute a difference of 25, which is 105-80. That's how far apart the 2008 Red Sox and 1963 Yankees are from each other on walks, based on how far apart they were from the average team in their own season. If each team were both 5% above average compared to their own year, the computed difference would be 0.
+
+In this way, teams who outperform their year's average stats compare favorably with other teams who outperform their own year's averages. The net effect is to account for changes in how the game is played, how many games are in a season, and so on.
+
+(Remember that for complete games, 1 point is taken off for every 2 points of difference.) 
 
 The output of the scoring is a number of .csv files in the /results/ directory for each team-season. The script 'top10.py', also available in this repo, will go through each CSV file and pull out the top 10 scores. 
 
