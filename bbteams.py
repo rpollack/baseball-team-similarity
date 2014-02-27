@@ -18,6 +18,10 @@ def calcRelativeStats(team, average):
     
     For example, the 2008 Red Sox struck out 1068 times. The average team in 2008 struck out 1099 times. Therefore the Red Sox's relative stat is (100*(1068/1099)) or 97, meaning they struck out 97% as often as the average team. Put another way, the Red Sox struck out 3% less often than the average team.
     '''
+    if average == 0:
+        print "holy shit!"
+        raw_input()
+    
     return int(100*(float(team) / float(average)))
 
 def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2, hits1, hits2, doubles1, doubles2, triples1, triples2, hitsA1, hitsA2):
@@ -124,7 +128,7 @@ def readDatabase(datafile):
     '''
     try:
         df = pd.read_csv(dataFile)
-        
+       
         #Get teams' info
         years = df.yearID
         numSeasons = len(years)
@@ -157,7 +161,6 @@ def readDatabase(datafile):
         #Compute annual averages for all the stats we care about
         grouped = df.groupby('yearID')
         avg = grouped.agg({'BB': np.mean, 'SO': np.mean, 'R':np.mean, 'RA': np.mean, 'HR': np.mean, 'BBA': np.mean, 'SOA': np.mean, 'HRA': np.mean, 'SB':np.mean, 'E':np.mean, 'D':np.mean, 'Trip':np.mean, 'H':np.mean, 'HA':np.mean})
-        
         return years, numSeasons, teamNames, runsScored, runsA, H, doubles, triples, BB, SO, HR, HA, BBA, SOA, HRA, SB, E, avg
     except Exception as e:
         exit("Error reading from %s: %s" % (dataFile, e))
@@ -172,7 +175,7 @@ def createOutputFiles(years, teamNames, numSeasons):
         if teamName == "Chicago/Pittsburgh (Union League)":
             # the / causes an error because the computer thinks it's a dir separator 
             teamName = "Chicago Pittsburgh (Union League)"
-            teamNames.loc[i] = teamName
+            teamNames.loc[i] = teamName #replace modified team name in array
         teamSeasonFile = str(year) + " " + teamName + '.csv'
         resultFile = os.path.join(dir, teamSeasonFile)
         try:
@@ -205,7 +208,6 @@ for j in range (0, numSeasons):
                 year2, team2, runsScored2, hits2, doubles2, triples2, runsA2, strikeouts2, hrHit2, walks2, hitsA2, strikeoutsA2, walksA2, hrA2, sb2, e2 = getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR, BB, HA, SOA, BBA, HRA, SB, E, avg, k)
                 id2 = str(year2) + ' ' + team2                
                 if (id1 != id2): # prevent comparing a team to itself
-                    print "\tto %s" %id2
                     row = [] # start a blank row for a new comparison
                     row.append(id2) #add the comparison team as the first column
                     simScore = compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2, hits1, hits2, doubles1, doubles2, triples1, triples2, hitsA1, hitsA2)
