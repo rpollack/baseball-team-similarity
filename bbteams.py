@@ -5,13 +5,6 @@ import os
 from sys import exit
 import numpy as np
 
-'''
-offense, add:
-OBP
-slugging %
-'''
-
-
 def calcRelativeStats(team, average):
     '''
     For a stat, calculates a team's performance relative to the average for that year.
