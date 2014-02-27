@@ -1,7 +1,8 @@
 Team Similarity Score Calculator (need to come up with a clever acronym!)
 Script by Ryan Pollack (http://www.ryanpollack.com)
-Adapted from Bill James' Similarity Scores method. 
-Uses a modified version of Lahman's Baseball Database (http://www.seanlahman.com/baseball-archive/statistics/)
+- Adapted from Bill James' Similarity Scores method.
+- "unusually/truly/basically/vaguely similar" language adapted from The Politics of Glory by Bill James (1994, p. 93) 
+- Uses a modified version of Lahman's Baseball Database (http://www.seanlahman.com/baseball-archive/statistics/)
 
 This script compares teams throughout history based on how much better/worse they were than that year's average for several statistics:
 - Runs scored by the offense
