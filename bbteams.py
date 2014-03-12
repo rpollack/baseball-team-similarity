@@ -22,6 +22,7 @@ def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeou
     Compares the stats of two teams and calculates how similar the teams are.
     '''
     startingScore = 1000
+    cgDivisor = 2 # take off 1 point for every difference of 2 CG rather than every game
 
     pointsOffRunsScored = int(abs(runsScored1 - runsScored2))
     pointsOffRunsA = int(abs(runsA1 - runsA2))
@@ -37,7 +38,7 @@ def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeou
     pointsOffDoubles = abs(doubles1-doubles2)
     pointsOffTriples = abs(triples1-triples2)
     pointsOffHitsAllowed = abs(hitsA1 - hitsA2)
-    pointsOffCG = abs(cg1 - cg2)
+    pointsOffCG = int((abs(cg1 - cg2))/cgDivisor)
     pointsOffSHO = abs(sho1 - sho2)
     
     totalPointsOff = pointsOffRunsScored + pointsOffRunsA + pointsOffSO + pointsOffHR + pointsOffBB + pointsOffSOA + pointsOffBBA + pointsOffHRA + pointsOffSB + pointsOffE + pointsOffHits + pointsOffDoubles + pointsOffTriples + pointsOffHitsAllowed + pointsOffCG + pointsOffSHO
