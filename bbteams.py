@@ -11,10 +11,6 @@ def calcRelativeStats(team, average):
     
     For example, the 2008 Red Sox struck out 1068 times. The average team in 2008 struck out 1099 times. Therefore the Red Sox's relative stat is (100*(1068/1099)) or 97, meaning they struck out 97% as often as the average team. Put another way, the Red Sox struck out 3% less often than the average team.
     '''
-    if average == 0:
-        print "holy shit!"
-        raw_input()
-    
     return int(100*(float(team) / float(average)))
 
 def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2, hits1, hits2, doubles1, doubles2, triples1, triples2, hitsA1, hitsA2, cg1, cg2, sho1, sho2):
