@@ -22,6 +22,12 @@ def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeou
     '''
     startingScore = 1000
     cgDivisor = 2 # take off 1 point for every difference of 2 CG rather than every game
+    
+    '''
+    Calculate the number of singles each team hit that year. If we just use hits, we're double-counting triples, doubles, and HR.
+    '''
+    singles1 = hits1 - doubles1 - triples1 - hrHit1
+    singles2 = hits2 - doubles2 - triples2 - hrHit2
 
     pointsOffRunsScored = int(abs(runsScored1 - runsScored2))
     pointsOffRunsA = int(abs(runsA1 - runsA2))
@@ -33,14 +39,15 @@ def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeou
     pointsOffHRA = abs(hrA1 - hrA2) 
     pointsOffSB = abs(sb1 - sb2)
     pointsOffE = abs(e1 - e2)
-    pointsOffHits = abs(hits1-hits2)
+    pointsOffSingles = abs(singles1 - singles2)
+    # pointsOffHits = abs(hits1-hits2)
     pointsOffDoubles = abs(doubles1-doubles2)
     pointsOffTriples = abs(triples1-triples2)
     pointsOffHitsAllowed = abs(hitsA1 - hitsA2)
     pointsOffCG = int((abs(cg1 - cg2))/cgDivisor)
     pointsOffSHO = abs(sho1 - sho2)
     
-    totalPointsOff = pointsOffRunsScored + pointsOffRunsA + pointsOffSO + pointsOffHR + pointsOffBB + pointsOffSOA + pointsOffBBA + pointsOffHRA + pointsOffSB + pointsOffE + pointsOffHits + pointsOffDoubles + pointsOffTriples + pointsOffHitsAllowed + pointsOffCG + pointsOffSHO
+    totalPointsOff = pointsOffRunsScored + pointsOffRunsA + pointsOffSO + pointsOffHR + pointsOffBB + pointsOffSOA + pointsOffBBA + pointsOffHRA + pointsOffSB + pointsOffE + pointsOffSingles + pointsOffDoubles + pointsOffTriples + pointsOffHitsAllowed + pointsOffCG + pointsOffSHO
     similarityScore = startingScore - totalPointsOff 
     return similarityScore
 
