@@ -16,7 +16,7 @@ def calcRelativeStats(team, average):
     '''
     return int(100*(float(team) / float(average)))
 
-def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2, hits1, hits2, doubles1, doubles2, triples1, triples2, hitsA1, hitsA2, cg1, cg2, sho1, sho2):
+def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2, singles1, singles2, doubles1, doubles2, triples1, triples2, hitsA1, hitsA2, cg1, cg2, sho1, sho2):
     '''
     Compares the stats of two teams and calculates how similar the teams are.
     '''
@@ -26,10 +26,7 @@ def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeou
     '''
     Calculate the number of singles each team hit that year. If we just use hits, we're double-counting triples, doubles, and HR.
     '''
-    singles1 = hits1 - doubles1 - triples1 - hrHit1
-    singles2 = hits2 - doubles2 - triples2 - hrHit2
-
-
+    
 	# Offensive stats
     pointsOffRunsScored = int(abs(runsScored1 - runsScored2))
     pointsOffRunsA = int(abs(runsA1 - runsA2))
@@ -64,9 +61,7 @@ def getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR
     
     hits = H[index]
     avgHits = int(avg.get_value(year, 'H'))
-    hitsPlus = calcRelativeStats(hits, avgHits)
-    # need to somehow get singles out of this.
-    
+    # do not calculate hits relative to average -- we get the number of hits only to calculate the number of singles later on.  
     
     twoBaggers = doubles[index]
     avgDoubles = int(avg.get_value(year, 'D'))
@@ -76,6 +71,15 @@ def getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR
     avgTriples = int(avg.get_value(year, 'Trip'))
     triplesPlus = calcRelativeStats(threeBaggers, avgTriples)
     
+    hrHit = int(HR[index])
+    avgHRHit = int(avg.get_value(year, 'HR'))
+    hrHitPlus = calcRelativeStats(hrHit, avgHRHit)
+
+    # Compute number of singles for the team and the number of average singles that year.
+    singles = hits - twoBaggers - threeBaggers - hrHit
+    avgSingles = avgHits - avgDoubles - avgTriples - avgHRHit
+    singlesPlus = calcRelativeStats(singles, avgSingles)  
+
     runsScored = runsScored[index]
     avgRunsScored = int(avg.get_value(year, 'R'))
     runsScoredPlus = calcRelativeStats(runsScored, avgRunsScored)
@@ -101,10 +105,6 @@ def getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR
         sb = int(SB[index])
         avgSB = int(avg.get_value(year, 'SB'))
         sbPlus = calcRelativeStats(sb, avgSB)
-
-    hrHit = int(HR[index])
-    avgHRHit = int(avg.get_value(year, 'HR'))
-    hrHitPlus = calcRelativeStats(hrHit, avgHRHit)
     
     walks = int(BB[index])
     avgWalks = int(avg.get_value(year, 'BB'))
@@ -134,7 +134,7 @@ def getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR
     avgSHO = int(avg.get_value(year, 'SHO'))
     shoPlus = calcRelativeStats(shutouts, avgSHO)
 
-    return year, team, runsScoredPlus, hitsPlus, doublesPlus, triplesPlus, runsAllowedPlus, strikeoutsPlus, hrHitPlus, walksPlus, HAPlus, SOAPlus, walksAPlus, HRAPlus, sbPlus, errorsPlus, cgPlus, shoPlus
+    return year, team, runsScoredPlus, singlesPlus, doublesPlus, triplesPlus, runsAllowedPlus, strikeoutsPlus, hrHitPlus, walksPlus, HAPlus, SOAPlus, walksAPlus, HRAPlus, sbPlus, errorsPlus, cgPlus, shoPlus
 
 def readDatabase(datafile):
     '''
@@ -221,7 +221,7 @@ createOutputFiles(years, teamNames, numSeasons)
 
 # compare teams, calculate scores, and write the scores to a file    
 for j in range (0, numSeasons):
-        year1, team1, runsScored1, hits1, doubles1, triples1, runsA1, strikeouts1, hrHit1, walks1, hitsA1, strikeoutsA1, walksA1, hrA1, sb1, e1, cg1, sho1 = getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR, BB, HA, SOA, BBA, HRA, SB, E, CG, SHO, avg, j)
+        year1, team1, runsScored1, singles1, doubles1, triples1, runsA1, strikeouts1, hrHit1, walks1, hitsA1, strikeoutsA1, walksA1, hrA1, sb1, e1, cg1, sho1 = getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR, BB, HA, SOA, BBA, HRA, SB, E, CG, SHO, avg, j)
         id1 = str(year1) + ' ' + team1
         if args.verbose:
             print "Comparison team: %s" %id1
@@ -231,12 +231,12 @@ for j in range (0, numSeasons):
             f = open(fileToOpen, 'a')
             results = csv.writer(f)
             for k in range (0, numSeasons):
-                year2, team2, runsScored2, hits2, doubles2, triples2, runsA2, strikeouts2, hrHit2, walks2, hitsA2, strikeoutsA2, walksA2, hrA2, sb2, e2, cg2, sho2 = getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR, BB, HA, SOA, BBA, HRA, SB, E, CG, SHO, avg, k)
+                year2, team2, runsScored2, singles2, doubles2, triples2, runsA2, strikeouts2, hrHit2, walks2, hitsA2, strikeoutsA2, walksA2, hrA2, sb2, e2, cg2, sho2 = getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR, BB, HA, SOA, BBA, HRA, SB, E, CG, SHO, avg, k)
                 id2 = str(year2) + ' ' + team2                
                 if (id1 != id2): # prevent comparing a team to itself
                     row = [] # start a blank row for a new comparison
                     row.append(id2) #add the comparison team as the first column
-                    simScore = compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2, hits1, hits2, doubles1, doubles2, triples1, triples2, hitsA1, hitsA2, cg1, cg2, sho1, sho2)
+                    simScore = compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeouts2, hrHit1, hrHit2, walks1, walks2, strikeoutsA1, strikeoutsA2, walksA1, walksA2, hrA1, hrA2, sb1, sb2, e1, e2, singles1, singles2, doubles1, doubles2, triples1, triples2, hitsA1, hitsA2, cg1, cg2, sho1, sho2)
                     row.append(simScore)
                     results.writerow(row)
         except Exception as e:
