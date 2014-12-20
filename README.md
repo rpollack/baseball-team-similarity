@@ -15,8 +15,12 @@ Requirements
 - The CSV version of the Lahman DB, located at "lahman/Teams.csv" relative to this script, with some modifications:
     - The '2B' column is named 'D'. Python doesn't like variables that start with numbers.
     - The '3B' column is named 'Trip'. Apparently python doesn't like the column to be named 'T'.
-    - Trimmed to 1913 and later. 1913 is the first season for which the database has all the statistics (that the script uses) for all the teams.
+    - Trimmed to 1913 and later. 1913 is the first season for which the database has all the statistics (that the script uses) for all the teams. The script should account for missing information by setting them to 0.
 
+
+
+Overview
+--------
 This script compares teams throughout history based on how much better/worse they were than that year's average for several statistics:
 
 Offense
@@ -54,11 +58,13 @@ In this way, teams who outperform their year's average stats compare favorably w
 
 (Remember that for complete games, 1 point is taken off for every 2 points of difference.) 
 
-Input/Output
-------------
-The output of the scoring is a number of .csv files in the /results/ directory for each team-season. The script 'top10.py', also available in this repo, will go through each CSV file and pull out the top 10 scores. 
+Output
+------
+The output of the scoring is a number of .csv files in the /results/ directory for each team-season.
 
-The input to this script is the Teams.csv file available from the Lahman database. It is expected to be located at 'lahman/Teams.csv' relative to this script. It's modified in a couple ways:
+Sifting Through the Output
+--------------------------
+The script 'top10.py', also available in this repo, goes through each CSV file and pulls out the top 10 scores for each team-season. This file stores its results in "results/top10" relative to the script. 
 
 Notes
 -----
