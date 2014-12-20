@@ -1,10 +1,13 @@
+'''
+Author: Ryan Pollack - ryanpollack.com - ryan9379@gmail.com
+'''
 import csv
 import pandas as pd
 from math import isnan
 import os
 from sys import exit
+import argparse
 import numpy as np
-
 def calcRelativeStats(team, average):
     '''
     For a stat, calculates a team's performance relative to the average for that year.
@@ -189,6 +192,13 @@ def createOutputFiles(years, teamNames, numSeasons):
         except Exception as e:
             print "Error creating %s: %s" % (resultFile, e)
 
+
+parser = argparse.ArgumentParser(description='Compares baseball teams throughout history according to how well they performed relative to league average.')
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
+                   default=False,
+                   help='Enable verbose mode.')
+args = parser.parse_args()
+
 dataFile = "lahman/Teams.csv"
 years, numSeasons, teamNames, runsScored, runsA, H, doubles, triples, BB, SO, HR, HA, BBA, SOA, HRA, SB, E, CG, SHO, avg = readDatabase(dataFile)
 header = ["comparedTeam", "simscore"]
@@ -201,7 +211,8 @@ createOutputFiles(years, teamNames, numSeasons)
 for j in range (0, numSeasons):
         year1, team1, runsScored1, hits1, doubles1, triples1, runsA1, strikeouts1, hrHit1, walks1, hitsA1, strikeoutsA1, walksA1, hrA1, sb1, e1, cg1, sho1 = getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR, BB, HA, SOA, BBA, HRA, SB, E, CG, SHO, avg, j)
         id1 = str(year1) + ' ' + team1
-        print "Comparison team: %s" %id1
+        if args.verbose:
+            print "Comparison team: %s" %id1
         fileToOpen = os.path.join(dir, id1) + '.csv'
         try:
             # Open Team J's results file for writing
