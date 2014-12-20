@@ -60,13 +60,14 @@ In this way, teams who outperform their year's average stats compare favorably w
 
 Output
 ------
-The output of the scoring is a number of .csv files in the /results/ directory for each team-season.
+The script outputs a number of .csv files in the "results" directory (relative to the script). Each .csv file contains that team's comparison to all the other teams in the database. 
 
-Sifting Through the Output
---------------------------
+Finding the Most Similar Teams
+------------------------------
 The script 'top10.py', also available in this repo, goes through each CSV file and pulls out the top 10 scores for each team-season. This file stores its results in "results/top10" relative to the script. 
 
 Notes
 -----
+- Run scripts with -v or --verbose to see printed status.
 - Teams are not compared with themselves.
 - The comparisons on Complete Games and Shutouts may need some tweaking. The differences can be huge. For example the 2011 Angels had 12 complete games vs. the MLB average of 6. This produces a score of (12/6)=200 for the complete game stat. Any team that threw an average number of complete games will end up with a score of 100; that team will have a 100-point difference from the 2011 Angels. That's probably too many points for just six complete games.  
