@@ -14,18 +14,24 @@ Requires:
 -- The data is only available for the 1913 season and later. That's the first season for which the database has all the statistics (that the script uses) for all the teams.
 
 This script compares teams throughout history based on how much better/worse they were than that year's average for several statistics:
+
+Offense:
+
 - Runs scored by the offense
 - Strikeouts by batters
-- Hits by batters
+- Singles by batters
 - Doubles by batters
 - Triples by batters
 - Home runs by batters
 - Walks by batters
 - Stolen bases by runners
+
+Pitching/Defense:
+
 - Runs allowed by pitching/defense
 - Strikeouts by pitchers
 - Hits allowed by pitchers
-- Walks by pitchers
+- Walks allowed by pitchers
 - Home runs allowed by pitchers
 - Complete games by pitchers
 - Shutouts by pitchers
