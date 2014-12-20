@@ -11,7 +11,7 @@ Requires:
 - The CSV version of the Lahman DB, located at "lahman/Teams.csv" relative to this script, with some modifications:
 -- The '2B' column is named 'D'. Python doesn't like variables that start with numbers.
 -- The '3B' column is named 'Trip'. Apparently python doesn't like the column to be named 'T'.
--- The data is only available for the 1913 season and later. That's the first season for which the database has all the statistics (that the script uses) for all the teams.
+-- Trimmed to 1913 and later. 1913 is the first season for which the database has all the statistics (that the script uses) for all the teams.
 
 This script compares teams throughout history based on how much better/worse they were than that year's average for several statistics:
 
