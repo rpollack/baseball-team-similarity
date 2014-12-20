@@ -9,7 +9,7 @@ Script by Ryan Pollack (http://www.ryanpollack.com)
 Requirements
 ------------
 
-- Python
+- Python 2.7
 - numpy
 - pandas
 - The CSV version of the Lahman DB, located at "lahman/Teams.csv" relative to this script, with some modifications:
