@@ -1,8 +1,17 @@
 Team Similarity Score Calculator (need to come up with a clever acronym!)
 Script by Ryan Pollack (http://www.ryanpollack.com)
 - Adapted from Bill James' Similarity Scores method.
-- "unusually/truly/basically/somewhat/vaguely similar" language adapted from The Politics of Glory by Bill James (1994, p. 93) 
+- "unusually/truly/basically/somewhat/vaguely similar" language and scoring adapted from *The Politics of Glory by Bill James* (1994, p. 93) 
 - Uses a modified version of Lahman's Baseball Database (http://www.seanlahman.com/baseball-archive/statistics/)
+
+Requires:
+- Python
+- numpy
+- pandas
+- The CSV version of the Lahman DB, located at "lahman/Teams.csv" relative to this script, with some modifications:
+-- The '2B' column is named 'D'. Python doesn't like variables that start with numbers.
+-- The '3B' column is named 'Trip'. Apparently python doesn't like the column to be named 'T'.
+-- The data is only available for the 1913 season and later. That's the first season for which the database has all the statistics (that the script uses) for all the teams.
 
 This script compares teams throughout history based on how much better/worse they were than that year's average for several statistics:
 - Runs scored by the offense
@@ -35,9 +44,6 @@ In this way, teams who outperform their year's average stats compare favorably w
 The output of the scoring is a number of .csv files in the /results/ directory for each team-season. The script 'top10.py', also available in this repo, will go through each CSV file and pull out the top 10 scores. 
 
 The input to this script is the Teams.csv file available from the Lahman database. It is expected to be located at 'lahman/Teams.csv' relative to this script. It's modified in a couple ways:
-- The '2B' column is named 'D'. Python doesn't like variables that start with numbers.
-- The '3B' column is named 'Trip'. Apparently python doesn't like the column to be named 'T'.
-- The data is only available for the 1913 season and later. That's the first season for which the database has all the statistics (that the script uses) for all the teams.
 
 Notes:
 - Teams are not compared with themselves.
