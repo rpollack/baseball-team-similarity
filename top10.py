@@ -1,9 +1,14 @@
 import csv
 import pandas as pd
-from os import listdir
-from os import path
-from os import makedirs
+from os import listdir, path, makedirs
 from os.path import exists, join, isfile
+import argparse
+
+parser = argparse.ArgumentParser(description='For each team, finds the top 10 most similar teams by sorting the list of results from bbteams.py.')
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
+                   default=False,
+                   help='Enable verbose mode.')
+args = parser.parse_args()
 
 header = ["comparedTeam, simScore"] #for writing to the top 10 scores file
 
@@ -28,16 +33,17 @@ for file in files:
         maxIdx = scores.idxmax() # get the position of the maximum score
         team = teams[maxIdx] # find the team associated with the max score we just found
         maxVals = [team, m] # combine team name, similarity score
-        if m >= 950:
-           print "*** %s and %s are unusually similar: %s" % (teamName, team, m)
-        elif m >= 900:
-            print "*** %s and %s are truly similar: %s" % (teamName, team, m)
-        elif m >= 850:
-            print "*** %s and %s are basically similar: %s" % (teamName, team, m)
-        elif m >= 800:
-            print "*** %s and %s are somewhat similar: %s" % (teamName, team, m)
-        elif m >= 750:
-            print "*** %s and %s are vaguely similar: %s" % (teamName, team, m)
+        if args.verbose:
+            if m >= 950:
+               print "%s and %s are unusually similar: %s" % (teamName, team, m)
+            elif m >= 900:
+                print "%s and %s are truly similar: %s" % (teamName, team, m)
+            elif m >= 850:
+                print "%s and %s are basically similar: %s" % (teamName, team, m)
+            elif m >= 800:
+                print "%s and %s are somewhat similar: %s" % (teamName, team, m)
+            elif m >= 750:
+                print "%s and %s are vaguely similar: %s" % (teamName, team, m)
         newList.append(maxVals) # add team name, similarity score to the list of the top 5 scores
         #remove previously-found value from lists so they won't be found again
         scores = scores.drop([maxIdx])
