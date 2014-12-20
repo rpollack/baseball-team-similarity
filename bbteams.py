@@ -29,20 +29,23 @@ def compareTeams(runsScored1, runsScored2, runsA1, runsA2, strikeouts1, strikeou
     singles1 = hits1 - doubles1 - triples1 - hrHit1
     singles2 = hits2 - doubles2 - triples2 - hrHit2
 
+
+	# Offensive stats
     pointsOffRunsScored = int(abs(runsScored1 - runsScored2))
     pointsOffRunsA = int(abs(runsA1 - runsA2))
     pointsOffSO = abs(strikeouts1-strikeouts2)
-    pointsOffHR = abs(hrHit1-hrHit2)
     pointsOffBB = abs(walks1-walks2)
-    pointsOffSOA = abs(strikeoutsA1 - strikeoutsA2)
-    pointsOffBBA = abs(walksA1 - walksA2)
-    pointsOffHRA = abs(hrA1 - hrA2) 
-    pointsOffSB = abs(sb1 - sb2)
-    pointsOffE = abs(e1 - e2)
     pointsOffSingles = abs(singles1 - singles2)
-    # pointsOffHits = abs(hits1-hits2)
     pointsOffDoubles = abs(doubles1-doubles2)
     pointsOffTriples = abs(triples1-triples2)
+    pointsOffHR = abs(hrHit1-hrHit2)
+    pointsOffSB = abs(sb1 - sb2)
+    
+    # Pitching / defensive stats
+    pointsOffSOA = abs(strikeoutsA1 - strikeoutsA2)
+    pointsOffBBA = abs(walksA1 - walksA2)
+    pointsOffHRA = abs(hrA1 - hrA2)   
+    pointsOffE = abs(e1 - e2)
     pointsOffHitsAllowed = abs(hitsA1 - hitsA2)
     pointsOffCG = int((abs(cg1 - cg2))/cgDivisor)
     pointsOffSHO = abs(sho1 - sho2)
@@ -62,6 +65,8 @@ def getTeamInfo(years, teamNames, runsScored, H, doubles, triples, runsA, SO, HR
     hits = H[index]
     avgHits = int(avg.get_value(year, 'H'))
     hitsPlus = calcRelativeStats(hits, avgHits)
+    # need to somehow get singles out of this.
+    
     
     twoBaggers = doubles[index]
     avgDoubles = int(avg.get_value(year, 'D'))
